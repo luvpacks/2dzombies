@@ -1,1 +1,76 @@
-<h1>hello!</h1>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zombie Survival: 2D Edition</title>
+    <style>
+        body { margin: 0; }
+        canvas { background: #000; display: block; margin: 0 auto; }
+    </style>
+</head>
+<body>
+    <canvas id="gameCanvas" width="800" height="600"></canvas>
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+
+        // Game Variables
+        let player = { x: 400, y: 550, width: 50, height: 50, speed: 5 };
+        let zombies = [];
+        let score = 0;
+
+        // Game Loop
+        function gameLoop() {
+            update();
+            draw();
+            requestAnimationFrame(gameLoop);
+        }
+
+        function update() {
+            // Handle player movement
+            if (keys['ArrowLeft'] && player.x > 0) player.x -= player.speed;
+            if (keys['ArrowRight'] && player.x < canvas.width - player.width) player.x += player.speed;
+
+            // Spawn zombies
+            if (Math.random() < 0.02) {
+                zombies.push({ x: Math.random() * canvas.width, y: 0, speed: Math.random() + 1 });
+            }
+
+            // Update zombie positions
+            zombies.forEach(zombie => {
+                zombie.y += zombie.speed;
+                if (zombie.y > canvas.height) {
+                    score -= 10; // Lose points for zombies escaping
+                    zombies.splice(zombies.indexOf(zombie), 1);
+                }
+            });
+        }
+
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            // Draw player
+            ctx.fillStyle = 'green';
+            ctx.fillRect(player.x, player.y, player.width, player.height);
+
+            // Draw zombies
+            ctx.fillStyle = 'red';
+            zombies.forEach(zombie => {
+                ctx.fillRect(zombie.x, zombie.y, 40, 40);
+            });
+
+            // Draw score
+            ctx.fillStyle = 'white';
+            ctx.fillText(`Score: ${score}`, 10, 20);
+        }
+
+        // Input Handling
+        const keys = {};
+        window.addEventListener('keydown', (e) => { keys[e.key] = true; });
+        window.addEventListener('keyup', (e) => { keys[e.key] = false; });
+
+        gameLoop();
+    </script>
+</body>
+</html>
+
